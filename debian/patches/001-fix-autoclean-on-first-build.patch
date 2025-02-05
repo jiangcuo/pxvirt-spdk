@@ -1,0 +1,15 @@
+diff --git a/mk/spdk.common.mk b/mk/spdk.common.mk
+index 19f0192c2..9dcaac54d 100644
+--- a/mk/spdk.common.mk
++++ b/mk/spdk.common.mk
+@@ -7,10 +7,6 @@
+ #  Copyright (c) 2022 Dell Inc, or its subsidiaries.
+ #
+ 
+-ifeq ($(wildcard $(SPDK_ROOT_DIR)/mk/config.mk),)
+-$(error mk/config.mk: file not found. Please run configure before make)
+-endif
+-
+ include $(SPDK_ROOT_DIR)/mk/config.mk
+ -include $(SPDK_ROOT_DIR)/mk/cc.flags.mk
+ -include $(SPDK_ROOT_DIR)/mk/cc.mk

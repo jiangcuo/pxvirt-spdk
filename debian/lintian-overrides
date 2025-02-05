@@ -1,0 +1,4 @@
+python3-spdk: package-installs-python-pycache-dir [usr/lib/python3.11/dist-packages/spdk/__pycache__/]
+python3-spdk: shell-script-fails-syntax-check [usr/share/spdk/scripts/env_dpdk/check_dpdk_pci_api.sh]
+python3-spdk: shell-script-fails-syntax-check [usr/share/spdk/scripts/perf/pm/collect-cpu-temp]
+python3-spdk: shell-script-fails-syntax-check [usr/share/spdk/scripts/rxe_cfg_small.sh]

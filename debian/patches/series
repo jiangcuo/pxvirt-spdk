@@ -1,0 +1,2 @@
+001-fix-autoclean-on-first-build.patch 
+002-fix-spdk_setup-rootdir-path.patch

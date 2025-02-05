@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+case "$1" in
+  remove)
+    if [ -f "/etc/default/grub.d/spdk.cfg" ]; then
+        rm /etc/default/grub.d/spdk.cfg
+    fi
+    ;;
+
+esac
+
+exit 0

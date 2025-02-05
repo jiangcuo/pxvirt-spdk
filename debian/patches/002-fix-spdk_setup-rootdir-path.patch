@@ -1,0 +1,13 @@
+diff --git a/scripts/setup.sh b/scripts/setup.sh
+index 477be189d..0641182cd 100755
+--- a/scripts/setup.sh
++++ b/scripts/setup.sh
+@@ -13,7 +13,7 @@ if [[ $os != Linux && $os != FreeBSD ]]; then
+ 	exit 1
+ fi
+ 
+-rootdir=$(readlink -f $(dirname $0))/..
++rootdir=$(dirname "$(realpath "$0")")/..
+ source "$rootdir/scripts/common.sh"
+ 
+ function usage() {

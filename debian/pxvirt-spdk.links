@@ -1,0 +1,2 @@
+usr/share/spdk/scripts/setup.sh usr/bin/spdk_setup
+usr/include /usr/share/spdk/include

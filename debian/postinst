@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+#DEBHELPER#
+
+case "$1" in
+  configure)
+    if [ ! -f "/etc/default/grub.d/spdk.cfg" ]; then
+        arch=$(uname -m)
+        if [ "$arch" = "x86_64" ];then
+            iommu="intel_iommu=on iommu=pt amd_iommu=on"
+        fi
+        echo "GRUB_CMDLINE_LINUX=\"hugepagesz=2M hugepages=1024 $iommu\"" >/etc/default/grub.d/spdk.cfg
+        update-grub
+    fi
+    ;;
+
+esac
+
+exit 0
