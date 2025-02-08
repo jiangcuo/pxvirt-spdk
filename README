@@ -1,0 +1,21 @@
+# SPDK for pxvirt
+
+## Build
+
+```bash
+apt update 
+apt instal devscripts build-essential -y
+```
+
+```bash
+git submoule update --init --recursive
+mk-build-deps --install --remove
+make deb
+```
+
+## Build for self machine
+
+```bash
+sed -i "/003-build-for-generic.patch/d" debian/patches/series
+make deb
+```

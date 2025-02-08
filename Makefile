@@ -40,12 +40,6 @@ $(BUILDDIR): submodule
 deb: $(DEB)
 $(DEB): $(BUILDDIR)
 	cd $(BUILDDIR); dpkg-buildpackage -b -us -uc
-	lintian $(DEB)
-
-
-.PHONY: lintian 
-deb: $(DEB)
-	lintian $(DEB)
 
 .PHONY: distclean
 distclean: clean
