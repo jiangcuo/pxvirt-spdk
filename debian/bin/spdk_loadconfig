@@ -1,0 +1,10 @@
+#!/bin/bash
+if [ ! -f /etc/spdk/spdk.conf ]; then
+    echo "spdk.conf not found"
+    exit 1
+else
+    sleep 10
+    spdk_setup
+    sleep 10
+    /usr/bin/spdk_rpc load_config  < /etc/spdk/spdk.conf
+fi

@@ -1,0 +1,11 @@
+[Unit]
+Description=PXVIRT SPDK auto load config Service
+After=pxvirt-spdk.service
+Requires=pxvirt-spdk.service
+
+[Service]
+User=root
+ExecStart=/usr/bin/spdk_loadconfig
+
+[Install]
+WantedBy=multi-user.target

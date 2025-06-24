@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ ! -d /etc/spdk/ ]; then
+    mkdir -p /etc/spdk/
+fi
+
+DATE=$(date +%Y%m%d%H%M%S)
+cp /etc/spdk/spdk.conf /etc/spdk/spdk.conf.${DATE}
+/usr/bin/spdk_rpc save_config  > /etc/spdk/spdk.conf

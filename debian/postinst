@@ -11,9 +11,10 @@ case "$1" in
         if [ "$arch" = "x86_64" ];then
             iommu="intel_iommu=on iommu=pt amd_iommu=on"
         fi
-        echo "GRUB_CMDLINE_LINUX=\"hugepagesz=2M hugepages=1024 $iommu\"" >/etc/default/grub.d/spdk.cfg
+        echo "GRUB_CMDLINE_LINUX=\"hugepagesz=2M hugepages=2048 $iommu\"" >/etc/default/grub.d/spdk.cfg
         update-grub
     fi
+    systemctl enable pxvirt-spdk.service pxvirt-spdk-load.service
     ;;
 
 esac

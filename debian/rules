@@ -5,17 +5,28 @@ export DH_VERBOSE=1
 export CONFIG_PREFIX=/usr
 export PYDIST=$(shell python3 -c "import site; print(site.getsitepackages()[2])")
 
+ARCH = $(shell uname -m)
+ifeq ($(ARCH), x86_64)
+	TARGET_ARCH = "core2"
+else ifeq ($(ARCH), aarch64)
+	TARGET_ARCH = "native"
+else
+	TARGET_ARCH = "native"
+endif
+
+
 %:
 	dh $@ --with quilt
 
 override_dh_auto_configure:
 	./configure \
 	--libdir=/usr/lib/"$(DEB_HOST_MULTIARCH)"/spdk \
+	--target-arch=${TARGET_ARCH} \
 	--prefix=/usr \
 	--disable-examples \
 	--disable-tests \
 	--disable-unit-tests \
-	--with-xnvme \
+	--without-xnvme \
 	--with-vhost \
 	--with-virtio \
 	--with-vbdev-compress \
@@ -27,10 +38,12 @@ override_dh_auto_configure:
 	--with-nvme-cuse \
 	--with-raid5f \
 	--with-crypto \
-	--without-sma
+	--without-sma \
+	--without-dpdk 
 
 override_dh_auto_build:
 	dh_auto_build -- PREFIX=/usr
+	make -C $(CURDIR)/cpumask
 
 override_dh_auto_install:
 	dh_auto_install -- DESTDIR=$(CURDIR)/debian/pxvirt-spdk
@@ -52,7 +65,8 @@ override_dh_auto_install:
 	rm $(CURDIR)/debian/pxvirt-spdk/usr/lib/pkgconfig/libdpdk.pc
 	rm $(CURDIR)/debian/pxvirt-spdk/usr/lib/pkgconfig/libisal.pc
 	rm $(CURDIR)/debian/pxvirt-spdk/usr/lib/pkgconfig/libisal_crypto.pc
-
+	rm $(CURDIR)/debian/pxvirt-spdk/usr/include/isa-l* -rf
+	
 	# install python
 	rm -rf $(CURDIR)/debian/pxvirt-spdk/usr/local
 	rm -rf $(CURDIR)/debian/python3-spdk/usr/local
@@ -67,7 +81,11 @@ override_dh_auto_install:
 	install -Dm644 "scripts/bash-completion/spdk" $(CURDIR)/debian/pxvirt-spdk/usr/share/bash-completion/completions/spdk
 	install -Dm644 "LICENSE" $(CURDIR)/debian/pxvirt-spdk/usr/share/licenses/pxvirt-spdk/LICENSE
 
-	
+	# install tools
+	install -Dm755 $(CURDIR)/debian/bin/spdk_loadconfig $(CURDIR)/debian/pxvirt-spdk/usr/bin/spdk_loadconfig
+	install -Dm755 $(CURDIR)/debian/bin/spdk_saveconfig $(CURDIR)/debian/pxvirt-spdk/usr/bin/spdk_saveconfig
+	install -Dm644 $(CURDIR)/debian/pxvirt-spdk-load.service $(CURDIR)/debian/pxvirt-spdk/lib/systemd/system/pxvirt-spdk-load.service
+	install -Dm755 $(CURDIR)/cpumask/cpumask_tool $(CURDIR)/debian/pxvirt-spdk/usr/bin/cpumask_tool
 
 override_dh_usrlocal:
 

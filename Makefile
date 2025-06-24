@@ -29,9 +29,8 @@ endif
 $(BUILDDIR): submodule
 	rm -rf $@ $@.tmp
 	mkdir $@.tmp
-	rsync -a debian $@.tmp
-	rsync -a src/* $@.tmp
-	echo "git clone https://gitea.lierfang.com/pxcloud/pxvirt\\ngit checkout $(GITVERSION)" >  $@.tmp/debian/SOURCE
+	rsync -a debian cpumask src/* $@.tmp
+	echo "git clone https://gitea.lierfang.com/pxcloud/spdk\\ngit checkout $(GITVERSION)" >  $@.tmp/debian/SOURCE
 	echo "REPOID_GENERATED=$(GITVERSION)" > $@.tmp/debian/rules.env
 	mv $@.tmp $@
 

@@ -1,11 +1,12 @@
 [Unit]
-Description=PXVirt SPDK Service
+Description=PXVIRT SPDK Service
 After=pvestatd.service
 StartLimitBurst=10
 StartLimitIntervalSec=60
 
 [Service]
-Environment=HUGEMEM=1024
+User=root
+Environment=HUGEMEM=2024
 ExecStart=/usr/bin/vhost -S /var/tmp -s $HUGEMEM -m 0x3
 Restart=on-failure
 RestartSec=5
