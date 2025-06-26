@@ -76,6 +76,8 @@ override_dh_auto_install:
 	# install spdk scripts
 	mkdir $(CURDIR)/debian/python3-spdk/usr/share/spdk -p
 	cp -r $(CURDIR)/scripts  $(CURDIR)/debian/python3-spdk/usr/share/spdk/
+	cp -r $(CURDIR)/scripts/rpc.py $(CURDIR)/debian/pxvirt-spdk/usr/bin/spdk_rpc
+	cp -r $(CURDIR)/scripts/spdkcli.py $(CURDIR)/debian/pxvirt-spdk/usr/bin/spdk_cli
 
 	# install spdk_setup
 	install -Dm644 "scripts/bash-completion/spdk" $(CURDIR)/debian/pxvirt-spdk/usr/share/bash-completion/completions/spdk
