@@ -42,6 +42,7 @@ Build-Depends: debhelper-compat (= 12),
                python3-configshell-fb,
                python3-pexpect,
                python3-paramiko,
+               python3-hatchling,
                python3-sphinx,
                valgrind,
                nasm,
@@ -96,6 +97,7 @@ Package: python3-spdk
 Architecture: any
 Depends: pxvirt-spdk,
          python3:any,
+         python3-hatchling,
          ${misc:Depends},
          ${shlibs:Depends},
 Description: SPDK for pxvirt

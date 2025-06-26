@@ -6,8 +6,7 @@ StartLimitIntervalSec=60
 
 [Service]
 User=root
-Environment=HUGEMEM=2024
-ExecStart=/usr/bin/vhost -S /var/tmp -s $HUGEMEM -m 0x3
+ExecStart=/usr/bin/spdk_vhost
 Restart=on-failure
 RestartSec=5
 

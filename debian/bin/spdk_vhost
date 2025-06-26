@@ -1,0 +1,19 @@
+#!/bin/bash
+BIN="/usr/bin/vhost"
+conf_file="/etc/spdk/vhost.conf"
+cores="0x1"
+hugemem="2048"
+vhost="/var/tmp"
+
+if [ -f "$conf_file" ]; then
+    source "$conf_file"
+else
+    mkdir -p /etc/spdk/
+    echo "cores=$cores" >$conf_file
+    echo "hugemem=$hugemem" >>$conf_file
+    echo "vhost=$vhost" >>$conf_file
+fi
+$BIN -m $cores -s $hugemem -S $vhost
+
+
+

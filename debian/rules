@@ -88,7 +88,8 @@ override_dh_auto_install:
 	install -Dm755 $(CURDIR)/debian/bin/spdk_saveconfig $(CURDIR)/debian/pxvirt-spdk/usr/bin/spdk_saveconfig
 	install -Dm644 $(CURDIR)/debian/pxvirt-spdk-load.service $(CURDIR)/debian/pxvirt-spdk/lib/systemd/system/pxvirt-spdk-load.service
 	install -Dm755 $(CURDIR)/cpumask/cpumask_tool $(CURDIR)/debian/pxvirt-spdk/usr/bin/cpumask_tool
-
+	install -Dm755 $(CURDIR)/debian/bin/spdk_vhost $(CURDIR)/debian/pxvirt-spdk/usr/bin/spdk_vhost
+	
 override_dh_usrlocal:
 
 override_dh_dwz:
