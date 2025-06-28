@@ -1,0 +1,236 @@
+diff --git a/app/spdk_nvme_identify_json/.gitignore b/app/spdk_nvme_identify_json/.gitignore
+new file mode 100644
+index 0000000000..8b38f30a44
+--- /dev/null
++++ b/app/spdk_nvme_identify_json/.gitignore
+@@ -0,0 +1 @@
++spdk_nvme_identify
+diff --git a/app/spdk_nvme_identify_json/Makefile b/app/spdk_nvme_identify_json/Makefile
+new file mode 100644
+index 0000000000..c7c8789a0d
+--- /dev/null
++++ b/app/spdk_nvme_identify_json/Makefile
+@@ -0,0 +1,23 @@
++#  SPDX-License-Identifier: BSD-3-Clause
++#  Copyright (C) 2015 Intel Corporation.
++#  Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES
++#  All rights reserved.
++#
++
++SPDK_ROOT_DIR := $(abspath $(CURDIR)/../..)
++include $(SPDK_ROOT_DIR)/mk/spdk.common.mk
++include $(SPDK_ROOT_DIR)/mk/spdk.modules.mk
++
++APP = nvme_discover_json
++
++C_SRCS := nvme_discover_json.c
++
++SPDK_LIB_LIST = nvme vmd env_dpdk util log sock
++
++include $(SPDK_ROOT_DIR)/mk/spdk.app.mk
++
++install: $(APP)
++	$(INSTALL_APP)
++
++uninstall:
++	$(UNINSTALL_APP)
+diff --git a/app/spdk_nvme_identify_json/nvme_discover_json.c b/app/spdk_nvme_identify_json/nvme_discover_json.c
+new file mode 100644
+index 0000000000..5e9a1caf08
+--- /dev/null
++++ b/app/spdk_nvme_identify_json/nvme_discover_json.c
+@@ -0,0 +1,180 @@
++/*   SPDX-License-Identifier: BSD-3-Clause
++ *   Copyright (C) 2015 Intel Corporation. All rights reserved.
++ *   Simplified NVMe Discovery Tool with JSON Output
++ */
++
++#include "spdk/stdinc.h"
++#include "spdk/endian.h"
++#include "spdk/log.h"
++#include "spdk/nvme.h"
++#include "spdk/env.h"
++#include "spdk/string.h"
++#include "spdk/uuid.h"
++
++static int g_controllers_found = 0;
++static bool g_first_device = true;
++
++static void
++print_ascii_string_json(const void *buf, size_t size)
++{
++    const char *str = buf;
++    size_t i;
++    
++    for (i = 0; i < size; i++) {
++        if (str[i] == '\0') {
++            break;
++        }
++        if (str[i] >= 0x20 && str[i] <= 0x7E) {
++            printf("%c", str[i]);
++        }
++    }
++}
++
++static uint64_t
++get_namespace_size(struct spdk_nvme_ctrlr *ctrlr, uint32_t nsid)
++{
++    struct spdk_nvme_ns *ns;
++    const struct spdk_nvme_ns_data *nsdata;
++    uint64_t size = 0;
++    
++    ns = spdk_nvme_ctrlr_get_ns(ctrlr, nsid);
++    if (ns) {
++        nsdata = spdk_nvme_ns_get_data(ns);
++        if (nsdata) {
++            size = nsdata->nsze * (1ULL << nsdata->lbaf[nsdata->flbas.format].lbads);
++        }
++    }
++    
++    return size;
++}
++
++static void
++print_controller_json(struct spdk_nvme_ctrlr *ctrlr, const struct spdk_nvme_transport_id *trid)
++{
++    const struct spdk_nvme_ctrlr_data *cdata;
++    uint32_t nsid;
++    uint64_t total_size = 0;
++    uint32_t namespace_count = 0;
++    
++    cdata = spdk_nvme_ctrlr_get_data(ctrlr);
++    
++    // Calculate total size by summing all active namespaces
++    for (nsid = 1; nsid <= cdata->nn; nsid++) {
++        if (spdk_nvme_ctrlr_is_active_ns(ctrlr, nsid)) {
++            total_size += get_namespace_size(ctrlr, nsid);
++            namespace_count++;
++        }
++    }
++    
++    if (!g_first_device) {
++        printf(",\n");
++    }
++    g_first_device = false;
++    
++    printf("    {\n");
++    printf("      \"pcie_addr\": \"%s\",\n", trid->traddr);
++    printf("      \"vendor_id\": \"0x%04x\",\n", cdata->vid);
++    printf("      \"subsystem_vendor_id\": \"0x%04x\",\n", cdata->ssvid);
++    printf("      \"serial_number\": \"");
++    print_ascii_string_json(cdata->sn, sizeof(cdata->sn));
++    printf("\",\n");
++    printf("      \"model_number\": \"");
++    print_ascii_string_json(cdata->mn, sizeof(cdata->mn));
++    printf("\",\n");
++    printf("      \"firmware_version\": \"");
++    print_ascii_string_json(cdata->fr, sizeof(cdata->fr));
++    printf("\",\n");
++    printf("      \"total_capacity_bytes\": %"PRIu64",\n", total_size);
++    printf("      \"total_capacity_gb\": %.2f,\n", (double)total_size / (1024.0 * 1024.0 * 1024.0));
++    printf("      \"namespace_count\": %u,\n", namespace_count);
++    printf("      \"max_namespaces\": %u,\n", cdata->nn);
++    printf("      \"transport_type\": \"%s\"\n", trid->trtype == SPDK_NVME_TRANSPORT_PCIE ? "PCIe" : "Other");
++    printf("    }");
++}
++
++static void
++attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
++          struct spdk_nvme_ctrlr *ctrlr, const struct spdk_nvme_ctrlr_opts *opts)
++{
++    g_controllers_found++;
++    print_controller_json(ctrlr, trid);
++    spdk_nvme_detach(ctrlr);
++}
++
++static bool
++probe_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
++         struct spdk_nvme_ctrlr_opts *opts)
++{
++    return true;
++}
++
++static void
++usage(const char *program_name)
++{
++    printf("Usage: %s [options]\n", program_name);
++    printf("Options:\n");
++    printf("  -h, --help    Show this help message\n");
++    printf("  -j, --json    Output in JSON format (default)\n");
++    printf("\nOutput: JSON array of NVMe devices with key information\n");
++}
++
++int
++main(int argc, char **argv)
++{
++    struct spdk_env_opts opts;
++    struct spdk_nvme_transport_id trid = {};
++    int rc;
++    
++    // Parse arguments
++    for (int i = 1; i < argc; i++) {
++        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
++            usage(argv[0]);
++            return 0;
++        }
++    }
++    
++    // Initialize SPDK environment
++    spdk_env_opts_init(&opts);
++    opts.name = "nvme_discover_json";
++    opts.shm_id = -1;
++    opts.mem_size = 512; // 512MB should be enough
++    opts.mem_channel = 1;
++    opts.main_core = 0;
++    opts.core_mask = "0x1";
++    
++    if (spdk_env_init(&opts) < 0) {
++        fprintf(stderr, "Unable to initialize SPDK env\n");
++        return 1;
++    }
++    
++    // Initialize transport ID for PCIe
++    spdk_nvme_trid_populate_transport(&trid, SPDK_NVME_TRANSPORT_PCIE);
++    
++    // Start JSON output
++    printf("{\n");
++    printf("  \"nvme_devices\": [\n");
++    
++    // Probe for NVMe devices
++    if (spdk_nvme_probe(&trid, NULL, probe_cb, attach_cb, NULL) != 0) {
++        fprintf(stderr, "spdk_nvme_probe() failed\n");
++        rc = 1;
++        goto cleanup;
++    }
++    
++    // End JSON output
++    printf("\n  ],\n");
++    printf("  \"total_devices\": %d,\n", g_controllers_found);
++    printf("  \"timestamp\": %ld\n", time(NULL));
++    printf("}\n");
++    
++    if (g_controllers_found == 0) {
++        fprintf(stderr, "No NVMe controllers found.\n");
++        rc = 1;
++    } else {
++        rc = 0;
++    }
++
++cleanup:
++    spdk_env_fini();
++    return rc;
++} 
+\ No newline at end of file
+diff --git a/app/Makefile b/app/Makefile
+index e4fefe83c2..50ca8b0f1d 100644
+--- a/app/Makefile
++++ b/app/Makefile
+@@ -16,6 +16,8 @@ DIRS-y += spdk_lspci
+ DIRS-y += spdk_nvme_perf
+ DIRS-y += spdk_nvme_identify
+ DIRS-y += spdk_nvme_discover
++DIRS-y += spdk_nvme_identify_json
++
+ ifneq ($(OS),Windows)
+ # TODO - currently disabled on Windows due to lack of support for curses
+ DIRS-y += spdk_top
