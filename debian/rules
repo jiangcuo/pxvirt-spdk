@@ -89,6 +89,8 @@ override_dh_auto_install:
 	install -Dm644 $(CURDIR)/debian/pxvirt-spdk-load.service $(CURDIR)/debian/pxvirt-spdk/lib/systemd/system/pxvirt-spdk-load.service
 	install -Dm755 $(CURDIR)/cpumask/cpumask_tool $(CURDIR)/debian/pxvirt-spdk/usr/bin/cpumask_tool
 	install -Dm755 $(CURDIR)/debian/bin/spdk_vhost $(CURDIR)/debian/pxvirt-spdk/usr/bin/spdk_vhost
+	install -Dm755 $(CURDIR)/debian/bin/spdk_tgt_nas $(CURDIR)/debian/pxvirt-spdk/usr/bin/spdk_tgt_nas
+	install -Dm644 $(CURDIR)/debian/pxvirt-spdk-tgt.service $(CURDIR)/debian/pxvirt-spdk/lib/systemd/system/pxvirt-spdk-tgt.service
 	
 override_dh_usrlocal:
 

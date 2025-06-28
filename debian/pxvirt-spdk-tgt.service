@@ -1,0 +1,15 @@
+[Unit]
+Description=PXVIRT SPDK Service
+After=pvestatd.service
+StartLimitBurst=10
+StartLimitIntervalSec=60
+
+[Service]
+User=root
+ExecStart=/usr/bin/spdk_tgt_nas
+Restart=on-failure
+RestartSec=5
+
+
+[Install]
+WantedBy=multi-user.target
