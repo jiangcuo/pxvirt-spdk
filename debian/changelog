@@ -1,3 +1,9 @@
+pxvirt-spdk (25.05-1) bookworm; urgency=medium
+   
+  * remove config load service
+
+ -- Jiangcuo <Jiangcuo@lierfang.com>  Thu, 26 Jun 2025 13:56:49 +0800
+
 pxvirt-spdk (25.05) bookworm; urgency=medium
    
   * update spdk to 25.05
