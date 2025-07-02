@@ -80,7 +80,7 @@ Homepage: https://spdk.io
                
 
 Package: pxvirt-spdk
-Architecture: any
+Architecture: arm64 amd64
 Depends: dbus,
          python3:any,
          python3-configshell-fb,
@@ -94,7 +94,7 @@ Description: SPDK for pxvirt
  This package contains the spdk used by PXVIRT
 
 Package: python3-spdk
-Architecture: any
+Architecture: arm64 amd64
 Depends: pxvirt-spdk,
          python3:any,
          python3-hatchling,
