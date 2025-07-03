@@ -88,6 +88,7 @@ Depends: dbus,
          python3-grpcio,
          python3-googleapi,
          python3-ipy,
+         python3-spdk,
          ${misc:Depends},
          ${shlibs:Depends},
 Description: SPDK for pxvirt

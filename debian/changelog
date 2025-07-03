@@ -1,3 +1,9 @@
+pxvirt-spdk (25.05-2) bookworm; urgency=medium
+   
+  * add python3-spdk in debian/control depends
+
+ -- Jiangcuo <Jiangcuo@lierfang.com>  Thu, 03 Jul 2025 15:26:19 +0800
+
 pxvirt-spdk (25.05-1) bookworm; urgency=medium
    
   * remove config load service
