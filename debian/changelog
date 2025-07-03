@@ -1,3 +1,9 @@
+pxvirt-spdk (25.05-3) bookworm; urgency=medium
+   
+  * add is_chroot function in postinst to check if in chroot environment
+
+ -- Jiangcuo <Jiangcuo@lierfang.com>  Thu, 03 Jul 2025 15:27:19 +0800
+
 pxvirt-spdk (25.05-2) bookworm; urgency=medium
    
   * add python3-spdk in debian/control depends
